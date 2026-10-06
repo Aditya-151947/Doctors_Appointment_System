@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Appointment System</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="app">
+    <header>
+        <div class="topbar">
+            <div class="brand">Doctor Appointment</div>
+            <nav>
+                <button onclick="showPage('appointments')">Appointments</button>
+                <button onclick="showPage('patients')">Patients</button>
+                <button onclick="showPage('doctors')">Doctors</button>
+                <button onclick="showPage('new')">New Appointment</button>
+            </nav>
+        </div>
+
+        <div class="green-header">
+            <span id="dayName">Today</span>
+            <h1 id="pageTitle">Scheduled Appointment</h1>
+            <span id="dateDisplay"></span>
+        </div>
+    </header>
+
+    <main>
+        <!-- APPOINTMENTS -->
+        <section id="appointmentsPage" class="page">
+            <div class="toolbar">
+                <label class="date-filter">
+                    Date
+                    <input type="date" id="filterDate">
+                </label>
+                <button class="primary" onclick="loadAppointments()">Refresh</button>
+                <button class="secondary" onclick="showPage('new')">+ New Appointment</button>
+            </div>
+
+            <div class="summary" id="summary"></div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Patient</th>
+                        <th>Disease</th>
+                        <th>Doctor</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody id="appointmentRows"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- PATIENTS -->
+        <section id="patientsPage" class="page hidden">
+            <div class="toolbar">
+                <button class="primary" onclick="loadPatientsPage()">Refresh Patients</button>
+                <button class="secondary" onclick="showPage('new')">+ Book Appointment</button>
+            </div>
+
+            <div class="summary" id="patientSummary"></div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Age</th>
+                        <th>Phone</th>
+                        <th>Disease</th>
+                        <th>Address</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody id="patientRows"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- NEW APPOINTMENT -->
+        <section id="newPage" class="page hidden">
+            <div class="form-card">
+                <h2>New Appointment</h2>
+                <p class="hint">Each doctor has 16 slots per day, with 30 minutes per patient.</p>
+
+                <div class="form-grid">
+                    <div>
+                        <label>Patient Name</label>
+                        <input id="pName" placeholder="Enter patient name">
+                    </div>
+                    <div>
+                        <label>Patient Age</label>
+                        <input id="pAge" type="number" min="0" placeholder="Age">
+                    </div>
+                    <div>
+                        <label>Patient Phone</label>
+                        <input id="pPhone" placeholder="Phone number">
+                    </div>
+                    <div>
+                        <label>Patient Disease</label>
+                        <input id="pDisease" placeholder="Disease">
+                    </div>
+                    <div class="full">
+                        <label>Patient Address</label>
+                        <input id="pAddress" placeholder="Address">
+                    </div>
+                    <div>
+                        <label>Doctor</label>
+                        <select id="doctor"></select>
+                    </div>
+                    <div>
+                        <label>Appointment Date</label>
+                        <input id="aDate" type="date">
+                    </div>
+                    <div>
+                        <label>Available Slot</label>
+                        <select id="slot">
+                            <option value="">Select doctor and date</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="slot-info" id="slotInfo"></div>
+
+                <div class="actions">
+                    <button class="warning" onclick="clearForm()">Clear</button>
+                    <button class="success" onclick="bookAppointment()">Book Appointment</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- UPDATE APPOINTMENT -->
+        <section id="updatePage" class="page hidden">
+            <div class="form-card">
+                <h2>Update Appointment</h2>
+
+                <div class="find-row">
+                    <input id="updateId" type="number" placeholder="Appointment ID">
+                    <button class="primary" onclick="findAppointment()">Find Record</button>
+                </div>
+
+                <div id="updateForm" class="hidden">
+                    <div class="form-grid">
+                        <div>
+                            <label>Patient</label>
+                            <select id="uPatient"></select>
+                        </div>
+                        <div>
+                            <label>Doctor</label>
+                            <select id="uDoctor"></select>
+                        </div>
+                        <div>
+                            <label>Appointment Date</label>
+                            <input id="uDate" type="date">
+                        </div>
+                        <div>
+                            <label>Available Slot</label>
+                            <select id="uSlot"></select>
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button class="success" onclick="updateAppointment()">Update Appointment</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- UPDATE PATIENT -->
+        <section id="editPatientPage" class="page hidden">
+            <div class="form-card">
+                <h2>Update Patient</h2>
+
+                <input type="hidden" id="editPatientId">
+
+                <div class="form-grid">
+                    <div>
+                        <label>Patient Name</label>
+                        <input id="eName">
+                    </div>
+                    <div>
+                        <label>Patient Age</label>
+                        <input id="eAge" type="number" min="0">
+                    </div>
+                    <div>
+                        <label>Patient Phone</label>
+                        <input id="ePhone">
+                    </div>
+                    <div>
+                        <label>Patient Disease</label>
+                        <input id="eDisease">
+                    </div>
+                    <div class="full">
+                        <label>Patient Address</label>
+                        <input id="eAddress">
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="success" onclick="savePatient()">Save Changes</button>
+                    <button class="warning" onclick="showPage('patients')">Cancel</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- DOCTORS -->
+        <section id="doctorsPage" class="page hidden">
+            <div class="form-card">
+                <h2>Doctors</h2>
+                <p class="hint">
+                    Working hours: <b>09:00 AM - 05:00 PM</b>.
+                    Maximum <b>16 patients per doctor per day</b>.
+                    Each appointment is <b>30 minutes</b>.
+                </p>
+
+                <div id="doctorList"></div>
+            </div>
+        </section>
+    </main>
+
+    <div id="toast"></div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
